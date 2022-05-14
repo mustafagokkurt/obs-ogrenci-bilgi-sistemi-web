@@ -18,7 +18,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { StudentService } from '../service/StudentService';
 import { UtilService } from '../service/UtilService';
 
-export const DataTableBasicDemo = () => {
+export const StudentList = () => {
     const emptyStudent = {
         tckn: '',
         adi: '',
@@ -30,13 +30,15 @@ export const DataTableBasicDemo = () => {
 
     const [filterTckn, setFilterTckn] = useState("");
     const [filterStudentName, setFilterStudentName] = useState("");
+    const [filterStudentSurName, setFilterStudentSurName] = useState("");
     const [filterPhone, setFilterPhone] = useState("");
     const [filterCity, setFilterCity] = useState(0);
     const [filterTown, setFilterTown] = useState(0);
 
-    const [displayBasic, setDisplayBasic] = useState(false);
+    // const [displayBasic, setDisplayBasic] = useState(false);
     const [dialog, setDialog] = useState(null);
 
+    const [studentDialog, setStudentDialog] = useState(false);
     const [deleteStudentDialog, setDeleteStudentDialog] = useState(false);
 
     const [student, setStudent] = useState(emptyStudent);
@@ -89,24 +91,30 @@ export const DataTableBasicDemo = () => {
     const listStudents = async () => {
 
         // console.log("query", q);        
-        await studentService.getStudents(filterTckn, filterStudentName, filterPhone, filterCity.kod || 0, filterTown.mernisKodu || 0).then(data => setStudents(data));
+        var data = await studentService.getStudents(filterTckn, filterStudentName, filterStudentSurName, filterPhone, filterCity.kod || 0, filterTown.mernisKodu || 0);
+        setStudents(data);
     };
 
     const resetFilters = async () => {
 
         setFilterTckn("");
         setFilterStudentName("");
+        setFilterStudentSurName("");
         setFilterPhone("");
         setFilterCity(0);
         setFilterTown(0);
+        setStudents([]);
     };
 
-    const editProduct = (product) => {
-        // setProduct({...product});
-        // setProductDialog(true);
+    const editStudent = async (id) => {
+
+        var studentDB = await studentService.getById(id);
+
+        setStudent({ ...studentDB });
+        setStudentDialog(true);
     }
 
-    const confirmDeleteProduct = (student) => {
+    const confirmDeleteStudent = (student) => {
         setStudent(student);
         setDeleteStudentDialog(true);
     }
@@ -122,6 +130,7 @@ export const DataTableBasicDemo = () => {
         setStudent(emptyStudent);
         await studentService.delete(student);
         // toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Product Deleted', life: 3000 });
+        alert(student.id + " id li öğrenci silindi.")
     }
 
     const deleteStudentDialogFooter = (
@@ -134,16 +143,32 @@ export const DataTableBasicDemo = () => {
     const actionBodyTemplate = (rowData) => {
         return (
             <React.Fragment>
-                <Button icon="pi pi-pencil" className="p-button-rounded p-button-success mr-2" onClick={() => editProduct(rowData)} />
-                <Button icon="pi pi-trash" className="p-button-rounded p-button-warning" onClick={() => confirmDeleteProduct(rowData)} />
+                <Button icon="pi pi-pencil" className="p-button-rounded p-button-success mr-2" onClick={() => editStudent(rowData.id)} />
+                <Button icon="pi pi-trash" className="p-button-rounded p-button-warning" onClick={() => confirmDeleteStudent(rowData)} />
             </React.Fragment>
         );
     }
 
+    const nameSurnameBodyTemplate = (rowData) => {
+        return (
+            <React.Fragment>
+                {rowData.adi + ' ' + (rowData.soyadi || '')}
+            </React.Fragment>
+        );
+    }
+
+    const defaultValues = {
+        tckn: '',
+        adi: '',
+        telefon: '',
+        sehir: -1,
+        ilce: -1
+    }
+
     const openNew = () => {
-        // setProduct(emptyProduct);
+        setStudent(defaultValues);
         // setSubmitted(false);
-        // setProductDialog(true);
+        setStudentDialog(true);
     }
 
     const confirmDeleteSelected = () => {
@@ -153,10 +178,17 @@ export const DataTableBasicDemo = () => {
     const leftToolbarTemplate = () => {
         return (
             <React.Fragment>
-                <Button label="New" icon="pi pi-plus" className="p-button-success mr-2" onClick={() => setDisplayBasic(true)} />
-                <Button label="Delete" icon="pi pi-trash" className="p-button-danger" onClick={confirmDeleteSelected} />
+                <Button label="New" icon="pi pi-plus" className="p-button-success mr-2" onClick={openNew} />
+                {/* <Button label="Delete" icon="pi pi-trash" className="p-button-danger" onClick={confirmDeleteSelected} /> */}
             </React.Fragment>
         )
+    }
+
+    const modalHeaderLabel = () => {
+        if (student.id > 0)
+            return "Güncelle";
+        else
+            return "Yeni Öğrenci Ekle";
     }
 
     const renderFooter = (name) => {
@@ -174,7 +206,7 @@ export const DataTableBasicDemo = () => {
                 <Button
                     label="Kaydet"
                     icon="pi pi-check"
-                    onClick={() => setDisplayBasic(false)}
+                    onClick={() => setStudentDialog(false)}
                     autoFocus
                 />
             </div>
@@ -202,15 +234,31 @@ export const DataTableBasicDemo = () => {
                 <div className="field grid">
                     <label htmlFor="adi" className="col-fixed" style={{ width: "150px" }}>Öğrenci Adı</label>
                     <div className="col">
-                        <InputText
-                            keyfilter="alpha"
-                            value={filterStudentName}
-                            placeholder="adı..."
-                            id="adi"
-                            style={{ width: "100%" }}
-                            className="inputfield w-full"
-                            onChange={(e) => setFilterStudentName(e.target.value)}
-                        />
+                        <div className="formgroup-inline">
+                            <div className="field w-6 mr-0">
+                                <InputText
+                                    keyfilter="alpha"
+                                    value={filterStudentName}
+                                    placeholder="adı..."
+                                    id="adi"
+                                    style={{ width: "100%" }}
+                                    className="inputfield w-full"
+                                    onChange={(e) => setFilterStudentName(e.target.value)}
+                                />
+                            </div>
+                            <div className="field w-6 mr-0">
+                                <InputText
+                                    keyfilter="alpha"
+                                    value={filterStudentSurName}
+                                    placeholder="soyadı..."
+                                    id="soyadi"
+                                    style={{ width: "100%" }}
+                                    className="inputfield w-full"
+                                    onChange={(e) => setFilterStudentSurName(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
@@ -256,11 +304,11 @@ export const DataTableBasicDemo = () => {
             </div>
 
             <div>
-                <Toolbar className="mb-4" left={leftToolbarTemplate}></Toolbar>
+                <Toolbar className="mb-4" right={leftToolbarTemplate}></Toolbar>
                 <div className="card">
                     <DataTable value={students} responsiveLayout="scroll">
                         <Column field="tckn" header="T.C. Kimlik No."></Column>
-                        <Column field="adi" header="Öğrenci Adı"></Column>
+                        <Column field="adi" header="Öğrenci Adı" body={nameSurnameBodyTemplate}></Column>
                         <Column field="telefon" header="Telefon"></Column>
                         <Column field="sehir" header="Şehir" body={cityBodyTemplate}></Column>
                         <Column field="ilce" header="İlçe" body={townBodyTemplate}></Column>
@@ -271,16 +319,16 @@ export const DataTableBasicDemo = () => {
 
             <Dialog
                 //ref={(el) => setDialog(el)}
-                header="Yeni Öğrenci Ekle"
-                visible={displayBasic}
+                header={modalHeaderLabel}
+                visible={studentDialog}
                 style={{ width: "50vw" }}
                 // footer={renderFooter("displayBasic")}
                 onHide={() => {
                     console.log("onHide");
-                    setDisplayBasic(false);
+                    setStudentDialog(false);
                 }}
             >
-                <StudentForm></StudentForm>
+                <StudentForm student={student} closePopup={() => setStudentDialog(false)}></StudentForm>
             </Dialog>
 
             <Dialog visible={deleteStudentDialog} style={{ width: '600px' }} header="Confirm" modal footer={deleteStudentDialogFooter} onHide={hideDeleteStudentDialog}>

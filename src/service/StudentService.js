@@ -27,63 +27,56 @@ export class StudentService {
             });
     }
 
-    getStudents(filterTckn, filterStudentName, filterPhone, filterCity, filterTown) {
+    async getStudents(filterTckn, filterStudentName, filterStudentSurName, filterPhone, filterCity, filterTown) {
         var search = "";
         if (filterTckn) search = search + `tckn=${filterTckn}&`;
         if (filterStudentName) search = search + `adi=${filterStudentName}&`;
+        if (filterStudentSurName) search = search + `soyadi=${filterStudentSurName}&`;
         if (filterPhone) search = search + `telefon=${filterPhone}&`;
         search = search + `sehir=${filterCity}&`;
         search = search + `ilce=${filterTown}&`;
 
-        return fetch(`http://localhost:8080/students?${search}`, {
+        var response = await fetch(`http://localhost:8080/students?${search}`, {
             "method": "GET",
             // mode: 'no-cors',
             // "content-type": "application/json",
             // "Access-Control-Allow-Origin": "*",
             // "Access-Control-Allow-Credentials": true
             // "accept": "application/json"
-        })
-            .then(res => {
-                return res.json();
-            })
-            .then(d => {
-                return d;
-            })
-            .catch(e => {
-                console.log(e);
-                return e;
-            });
+        });
+
+        return response.json();
     }
 
-    create(student) {
+    async save(student) {
 
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(student)
         };
-        fetch('http://localhost:8080/students/add', requestOptions)
-            .then(response => response.json())
-            .then(data => console.log(data));
+        var response = await fetch('http://localhost:8080/students/save', requestOptions)
+        return response.json();
     }
 
-    delete(student) {
+    async delete(student) {
 
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(student)
         };
-        fetch('http://localhost:8080/students/delete', requestOptions)
-            .then(res => {
-                return res.json();
-            })
-            .then(d => {
-                return d;
-            })
-            .catch(e => {
-                console.log(e);
-                return e;
-            });
+        var response = await fetch('http://localhost:8080/students/delete', requestOptions);
+        return response;
+    }
+
+    async getById(id) {
+
+        const requestOptions = {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+        };
+        var response = await fetch(`http://localhost:8080/students/${id}`, requestOptions);
+        return response.json();
     }
 }
