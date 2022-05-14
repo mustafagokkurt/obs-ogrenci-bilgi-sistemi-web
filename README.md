@@ -70,4 +70,5 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
 
 ### _class olarak db kayit atılıyor.
-### rest servislerin http status kodlari da dönülewcek
+### rest servislerin http status kodlari da dönülenecek
+### success ve hata mesajı loading indicator eklenecek
