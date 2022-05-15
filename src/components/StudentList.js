@@ -178,7 +178,7 @@ export const StudentList = () => {
     const leftToolbarTemplate = () => {
         return (
             <React.Fragment>
-                <Button label="New" icon="pi pi-plus" className="p-button-success mr-2" onClick={openNew} />
+                <Button label="Yeni Öğrenci Ekle" icon="pi pi-plus" className="p-button-success mr-2" onClick={openNew} />
                 {/* <Button label="Delete" icon="pi pi-trash" className="p-button-danger" onClick={confirmDeleteSelected} /> */}
             </React.Fragment>
         )
